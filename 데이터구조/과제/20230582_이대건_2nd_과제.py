@@ -21,17 +21,18 @@ class DoubleLinkedList:
             self.tail.next = new_node #끝의 다음은 새것
             new_node.prev = self.tail #지금 끝에있는게 새것의 전
             self.tail = new_node #모든것의 끝은 새것
-            
+
+
 ##프린트함수##
-def printNodes(self): #이중연결리스트 클래스를 받는다
-    current = self.head #head를 가리키는 current지시봉 
+def printNodes(dll: DoubleLinkedList): #이중연결리스트 클래스를 받는다
+    current = dll.head #head를 가리키는 current지시봉 
     print("정방향-->",  end=' ')
     while current: #다음노드가 존재한다면
         print(current.data, end=' ')
         current = current.next
     print()
     print("역방향-->",  end=' ')
-    current = self.tail
+    current = dll.tail
     while current:
         print(current.data, end=' ')
         current = current.prev

@@ -7,7 +7,7 @@ def printNodes(head):
     current = head
     if current.link == None:
         return
-    print(current.data)
+    print(current.data, end=" ")
     while current.link != head:
         current = current.link
         print(current.link, end=" ")

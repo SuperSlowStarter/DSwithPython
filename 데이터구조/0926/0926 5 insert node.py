@@ -21,6 +21,9 @@ def insertNode(findData, insertData) :
         node=Node()
         node.data = insertData
         node.link = head
+
+
+        
         head = node
         return
     

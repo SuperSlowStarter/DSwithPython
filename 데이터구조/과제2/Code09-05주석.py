@@ -1,0 +1,103 @@
+class Graph() : # 그래프 클래스 정의
+    def __init__ (self, size):
+        self.SIZE = size
+        self.graph = [[0 for _ in range(size)] for _ in range(size)] # 초기화 시 size 차원 배열 생성, 0으로 채워진다
+
+def printGraph(inputGraph):
+    print("         ", end='')
+    for v in range(inputGraph.SIZE):             # 6*6 배열이니까 6번
+        print(f"{locationAry[v]:^4}", end=' ')   # 각 도시 이름을 폭 4에 가운데 정렬
+    print()
+    for row in range(inputGraph.SIZE):           # 지역명 출력
+        print(f"{locationAry[row]:<6}", end=' ') # 도시 이름을 폭 6에 왼쪽 정렬
+        for col in range(inputGraph.SIZE):       # 각 도로 가중치 출력
+            print(f"{inputGraph.graph[row][col]:^6}", end=' ')  # 숫자를 폭 6에 가운데 정렬
+        print()                                  # 한 지역 출력이 끝났으니 엔터
+    print() 
+
+def findVertex(g, findVtx):
+    stack = []                                   # 탐색에 사용할 스택을 초기화
+    visitedAry = []                              # 방문한 정점들을 저장할 배열을 초기화
+
+    current = 0                                  # 시작 정점을 0으로 설정 (춘천)
+    stack.append(current)                        # 시작 정점을 스택에 추가
+    visitedAry.append(current)                   # 시작 정점을 방문 배열에 추가
+
+    # 스택이 비어있지 않은 동안 반복 (탐색이 끝날 때까지)
+    while (len(stack) != 0):
+        next = None                              # 다음에 방문할 정점을 초기화
+        for vertex in range(gSize):              # 현재 정점에서 모든 정점에 대해 반복
+            if g.graph[current][vertex] != 0:    # 현재-vertex 간에 간선이 존재하는지 확인
+                if vertex in visitedAry:         # 이미 방문한 정점인지 확인
+                    pass                         # 방문했다면 넘어감
+                else:
+                    next = vertex                # 방문하지 않은 정점을 다음 방문 정점으로 지정
+                    break                        # 첫 방문하지 않은 정점을 찾으면 반복 종료
+
+        if next != None:                         # 방문할 다음 정점이 있다면
+            current = next                       # 현재 정점을 다음 정점으로 이동
+            stack.append(current)                # 스택에 현재 정점을 추가
+            visitedAry.append(current)           # 방문 배열에 현재 정점을 추가
+        else:
+            current = stack.pop()                # 다음 방문할 정점이 없으면 스택에서 pop하여 되돌아감
+
+    if findVtx in visitedAry:                    # 목표 정점이 방문 배열에 있으면
+        return True                              # 해당 정점이 연결되어 있음을 의미하여 True 반환
+    else:
+        return False                             # 연결되지 않았다면 False 반환
+
+    
+## 전역 변수 선언 부분 ##
+G1 = None
+locationAry = {0: '춘천', 1: '서울', 2: '속초', 3: '대전', 4: '광주', 5: '부산'} # 딕셔너리를 이용해 숫자와 지역 매칭
+
+## 메인 코드 부분 ##
+gSize = 6
+G1 = Graph(gSize)
+G1.graph[0][1] = 10; G1.graph[0][2] = 15
+G1.graph[1][0] = 10; G1.graph[1][2] = 40; G1.graph[1][3] = 11; G1.graph[1][4] = 50
+G1.graph[2][0] = 15; G1.graph[2][1] = 40; G1.graph[2][3] = 12
+G1.graph[3][1] = 11; G1.graph[3][2] = 12; G1.graph[3][4] = 20; G1.graph[3][5] = 30
+G1.graph[4][1] = 50; G1.graph[4][3] = 20; G1.graph[4][5] = 25
+G1.graph[5][3] = 30; G1.graph[5][4] = 25
+
+print('## 자전거 도로 건설을 위한 전체 연결도 ##')
+printGraph(G1)
+
+# 가중치 간선 목록
+edgeAry = []                                   # 빈 간선 배열
+for i in range(gSize):
+    for k in range(gSize):                     # 가중치가 0이 아니면 간선 배열에 추가
+        if G1.graph[i][k] != 0:
+            edgeAry.append([G1.graph[i][k], i, k])  # 간선 배열에 저장되는 값 [가중치, 출발 지역, 도착 지역]
+
+from operator import itemgetter
+
+edgeAry = sorted(edgeAry, key=itemgetter(0), reverse=True)  # 간선 배열을 가중치 기준 내림차순으로 정렬
+
+######## 중복 제거 작업 ########
+realEdgeAry = []
+for i in range(0, len(edgeAry), 2):            # 리스트를 두 칸씩 건너뛰며 반복, 왕복으로 간선이 두 개씩 생김
+    realEdgeAry.append(edgeAry[i])
+
+index = 0
+while (len(realEdgeAry) > gSize - 1):          # 간선 개수가 '정점 개수-1'일 때까지 반복
+    start = realEdgeAry[index][1]              # 가중치 간선 배열 index번째 항목의 시작 지역
+    end = realEdgeAry[index][2]                # 가중치 간선 배열 index번째 항목의 도착 지역
+    saveCost = realEdgeAry[index][0]           # 가중치 간선 배열 index번째 항목의 가중치
+
+    G1.graph[start][end] = 0                   # 간선을 임시로 삭제
+    G1.graph[end][start] = 0
+
+    startYN = findVertex(G1, start)            # 시작 정점이 연결되어 있는지 확인 (서브그래프 포함 여부)
+    endYN = findVertex(G1, end)                # 도착 정점이 연결되어 있는지 확인 (서브그래프 포함 여부)
+
+    if startYN and endYN:                      # 시작 정점과 도착 정점 모두 연결되어 있다면
+        del(realEdgeAry[index])                # 해당 간선을 삭제하여 연결하지 않음 (사이클 방지)
+    else:
+        G1.graph[start][end] = saveCost        # 간선을 복구하여 자전거 도로로 연결
+        G1.graph[end][start] = saveCost        # 양방향 연결이므로 반대쪽 간선도 복구
+        index += 1                             # 다음 간선을 확인하기 위해 인덱스를 증가시킴
+
+print('## 최소 비용의 자전거 도로 연결도 ##')
+printGraph(G1)                                 # 최종적으로 최소 비용 신장 트리를 출력
